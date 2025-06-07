@@ -19,7 +19,8 @@ public class Publication extends AuditableAbstractAggregateRoot<Publication> {
     @Column(name = "entrepreneur_id")
     private Long entrepreneurId;
 
-    @Column(name = "image", columnDefinition = "TEXT")
+    @Lob
+    @Column(name = "image", length = 1000000000)
     private String image;
 
     @NotNull
