@@ -8,7 +8,6 @@ public class ProfileEntrepreneurResourceFromEntityAssembler {
         Long userId = entity.getUserId() != null ? entity.getUserId().userId() : null;
         return new ProfileEntrepreneurResource(
                 entity.getId(),
-                userId,
                 entity.getName(),
                 entity.getCity(),
                 entity.getCountry(),

@@ -8,7 +8,8 @@
             "mainClass": "com.aventurape.config.config.ConfigServiceApplication",
             "projectName": "config-service",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=60955 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=config-service"
         },
         {
             "type": "java",
@@ -18,7 +19,8 @@
             "mainClass": "com.aventurape.eureka.eureka_service.EurekaServiceApplication",
             "projectName": "eureka-service",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=60958 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=eureka-service"
         },
         {
             "type": "java",
@@ -28,7 +30,8 @@
             "mainClass": "com.aventurape.iam_service.IamServiceApplication",
             "projectName": "iam-service",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=60988 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=iam-service"
         },
         {
             "type": "java",
@@ -48,6 +51,16 @@
             "cwd": "${workspaceFolder}",
             "mainClass": "com.aventurape.gateway.gateway.GatewayServiceApplication",
             "projectName": "gateway-service",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-PostServiceApplication<post-service>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.aventurape.post_service.PostServiceApplication",
+            "projectName": "post-service",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
         }

@@ -1,7 +1,6 @@
 package com.aventurape.profile_service.domain.model.commands;
 
 public record CreateProfileAdventurerCommand(
-        Long userId,
         String firstName,
         String lastName,
         String email,

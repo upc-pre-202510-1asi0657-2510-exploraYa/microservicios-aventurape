@@ -7,7 +7,6 @@ public class ProfileAdventurerResourceFromEntityAssembler {
     public static ProfileAdventurerResource toResourceFromEntity(ProfileAdventurer entity) {
         return new ProfileAdventurerResource(
                 entity.getId(),
-                entity.getUserId().userId(),
                 entity.getFirstName() + " " + entity.getLastName(),
                 entity.getGender(),
                 entity.getEmailAddress(),

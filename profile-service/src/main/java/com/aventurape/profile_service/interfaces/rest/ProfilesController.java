@@ -17,7 +17,7 @@ import com.aventurape.profile_service.interfaces.rest.transform.CreateProfileAdv
 import com.aventurape.profile_service.interfaces.rest.transform.CreateProfileEntrepreneurCommandFromResourceAssembler;
 import com.aventurape.profile_service.interfaces.rest.transform.ProfileAdventurerResourceFromEntityAssembler;
 import com.aventurape.profile_service.interfaces.rest.transform.ProfileEntrepreneurResourceFromEntityAssembler;
-import com.aventurape.iam_service.infraestructure.security.SecurityUtils;
+//import com.aventurape.iam_service.infraestructure.security.SecurityUtils;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -56,16 +56,8 @@ public class ProfilesController {
     @PostMapping("/adventurer")
     public ResponseEntity<ProfileAdventurerResource> createProfileAdventurer(@RequestBody CreateProfileAdventurerResource createProfileAdventurerResource) {
         try {
-            Long userId = SecurityUtils.getCurrentUserId();
-            if (userId == null) {
-                logger.error("No authenticated user found");
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            
-            logger.info("Creating adventurer profile for user: {}", userId);
-            var createProfileCommand = CreateProfileAdventurerCommandFromResourceAssembler.toCommandFromResource(createProfileAdventurerResource, userId);
+            var createProfileCommand = CreateProfileAdventurerCommandFromResourceAssembler.toCommandFromResource(createProfileAdventurerResource);
             var profileAdventurer = profileAdventureCommandService.handle(createProfileCommand);
-
             var profileAdventurerResource = ProfileAdventurerResourceFromEntityAssembler.
                     toResourceFromEntity(profileAdventurer);
             return new ResponseEntity<>(profileAdventurerResource, HttpStatus.CREATED);
@@ -78,16 +70,11 @@ public class ProfilesController {
     @PostMapping("/entrepreneur")
     public ResponseEntity<ProfileEntrepreneurResource> createProfileEntrepreneur(@RequestBody CreateProfileEntrepreneurResource createProfileEntrepreneurResource) {
         try {
-            Long userId = SecurityUtils.getCurrentUserId();
-            if (userId == null) {
-                logger.error("No authenticated user found");
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            
-            logger.info("Creating entrepreneur profile for user: {}", userId);
-            var createProfileCommand = CreateProfileEntrepreneurCommandFromResourceAssembler.toCommandFromResource(createProfileEntrepreneurResource, userId);
+
+            logger.info("Creating entrepreneur profile");
+            var createProfileCommand = CreateProfileEntrepreneurCommandFromResourceAssembler.toCommandFromResource(createProfileEntrepreneurResource);
             var profileEntrepreneur = profileEntrepreneurCommandService.handle(createProfileCommand);
-            
+
             if (profileEntrepreneur.isEmpty()) {
                 logger.error("Failed to create entrepreneur profile");
                 return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

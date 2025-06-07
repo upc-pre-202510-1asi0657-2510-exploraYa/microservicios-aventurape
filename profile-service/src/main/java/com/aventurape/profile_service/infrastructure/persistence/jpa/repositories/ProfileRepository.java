@@ -42,4 +42,7 @@ public interface ProfileRepository extends JpaRepository<Profile, Long> {
 
     @Query("SELECT p FROM ProfileEntrepreneur p WHERE p.userId = :userId")
     Optional<ProfileEntrepreneur> findEntrepreneurByUserId(@Param("userId") UserId userId);
+
+    List<ProfileAdventurer> findByEmail(String email);
+    List<ProfileAdventurer> findByUserId(long userId);
 }
