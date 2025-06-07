@@ -1,13 +1,13 @@
 package com.aventurape.favorites_service.internal.queryservices;
 
-import com.upc.aventurape.platform.favorite.application.internal.outboundservices.acl.ExternalProfileService;
-import com.upc.aventurape.platform.favorite.application.internal.outboundservices.acl.ExternalPublicationService;
-import com.upc.aventurape.platform.favorite.domain.model.aggregates.Favorite;
-import com.upc.aventurape.platform.favorite.domain.model.queries.GetAllFavoritePublicationsQuery;
-import com.upc.aventurape.platform.favorite.domain.model.queries.GetFavoritePublicationByProfileIdQuery;
-import com.upc.aventurape.platform.favorite.domain.model.valueobjects.ProfileId;
-import com.upc.aventurape.platform.favorite.domain.services.FavoritePublicationQueryService;
-import com.upc.aventurape.platform.favorite.infrastructure.persistence.jpa.repositories.FavoritePublicationRepository;
+import com.aventurape.favorites_service.domain.model.aggregates.Favorite;
+import com.aventurape.favorites_service.domain.model.queries.GetAllFavoritePublicationsQuery;
+import com.aventurape.favorites_service.domain.model.queries.GetFavoritePublicationByProfileIdQuery;
+import com.aventurape.favorites_service.domain.model.valueobjects.ProfileId;
+import com.aventurape.favorites_service.domain.services.FavoritePublicationQueryService;
+import com.aventurape.favorites_service.internal.outboundservices.acl.ExternalProfileService;
+import com.aventurape.favorites_service.internal.outboundservices.acl.ExternalPublicationService;
+import com.aventurape.favorites_service.repositories.FavoritePublicationRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

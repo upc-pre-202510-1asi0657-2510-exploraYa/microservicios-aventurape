@@ -1,12 +1,7 @@
 package com.aventurape.favorites_service.internal.outboundservices.acl;
 
-import com.upc.aventurape.platform.favorite.interfaces.acl.transform.ProfileIdDto;
-import com.upc.aventurape.platform.profiles.domain.model.queries.GetProfileAdventurerByEmailQuery;
-import com.upc.aventurape.platform.profiles.domain.model.queries.GetProfileEntrepreneurByEmailQuery;
-import com.upc.aventurape.platform.profiles.domain.services.ProfileAdventureCommandService;
-import com.upc.aventurape.platform.profiles.domain.services.ProfileAdventureQueryService;
-import com.upc.aventurape.platform.profiles.domain.services.ProfileEntrepreneurCommandService;
-import com.upc.aventurape.platform.profiles.domain.services.ProfileEntrepreneurQueryService;
+
+import com.aventurape.favorites_service.interfaces.acl.transform.ProfileIdDto;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

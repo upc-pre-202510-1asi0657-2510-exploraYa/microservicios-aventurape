@@ -1,7 +1,7 @@
 package com.aventurape.favorites_service.interfaces.rest.transform;
 
-import com.upc.aventurape.platform.favorite.domain.model.aggregates.Favorite;
-import com.upc.aventurape.platform.favorite.interfaces.rest.resources.FavoriteResource;
+import com.aventurape.favorites_service.domain.model.aggregates.Favorite;
+import com.aventurape.favorites_service.interfaces.rest.resources.FavoriteResource;
 
 public class FavoritePublicationResourceFromEntityAssembler {
     public static FavoriteResource toResourceFromEntity(Favorite entity) {

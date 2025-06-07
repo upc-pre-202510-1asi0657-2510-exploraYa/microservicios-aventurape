@@ -1,16 +1,9 @@
 package com.aventurape.favorites_service.interfaces.rest;
 
-import com.upc.aventurape.platform.favorite.domain.model.commands.DeleteFavoriteCommand;
-import com.upc.aventurape.platform.favorite.domain.model.queries.GetAllFavoritePublicationsQuery;
-import com.upc.aventurape.platform.favorite.domain.model.queries.GetFavoritePublicationByProfileIdQuery;
-import com.upc.aventurape.platform.favorite.domain.model.valueobjects.ProfileId;
-import com.upc.aventurape.platform.favorite.domain.services.FavoritePublicationCommandService;
-import com.upc.aventurape.platform.favorite.domain.services.FavoritePublicationQueryService;
-import com.upc.aventurape.platform.favorite.interfaces.rest.resources.CreateFavoritePublicationResource;
-import com.upc.aventurape.platform.favorite.interfaces.rest.resources.FavoriteResource;
-import com.upc.aventurape.platform.favorite.interfaces.rest.transform.CreateFavoritePublicationCommandFromResourceAssembler;
-import com.upc.aventurape.platform.favorite.interfaces.rest.transform.FavoritePublicationResourceFromEntityAssembler;
-import com.upc.aventurape.platform.iam.infrastructure.security.SecurityUtils;
+import com.aventurape.favorites_service.domain.services.FavoritePublicationCommandService;
+import com.aventurape.favorites_service.domain.services.FavoritePublicationQueryService;
+import com.aventurape.favorites_service.interfaces.rest.resources.CreateFavoritePublicationResource;
+import com.aventurape.favorites_service.interfaces.rest.resources.FavoriteResource;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

@@ -1,7 +1,7 @@
 package com.aventurape.favorites_service.repositories;
 
-import com.upc.aventurape.platform.favorite.domain.model.aggregates.Favorite;
-import com.upc.aventurape.platform.favorite.domain.model.valueobjects.ProfileId;
+import com.aventurape.favorites_service.domain.model.aggregates.Favorite;
+import com.aventurape.favorites_service.domain.model.valueobjects.ProfileId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

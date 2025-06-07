@@ -1,8 +1,9 @@
 package com.aventurape.favorites_service.domain.model.aggregates;
 
-import com.upc.aventurape.platform.favorite.domain.model.valueobjects.ProfileId;
-import com.upc.aventurape.platform.favorite.domain.model.valueobjects.PublicationId;
-import com.upc.aventurape.platform.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
+
+import com.aventurape.favorites_service.domain.model.valueobjects.ProfileId;
+import com.aventurape.favorites_service.domain.model.valueobjects.PublicationId;
+import com.aventurape.favorites_service.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

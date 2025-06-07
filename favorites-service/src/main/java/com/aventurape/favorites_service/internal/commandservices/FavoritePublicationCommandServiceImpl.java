@@ -1,14 +1,14 @@
 package com.aventurape.favorites_service.internal.commandservices;
 
-import com.upc.aventurape.platform.favorite.application.internal.outboundservices.acl.ExternalProfileService;
-import com.upc.aventurape.platform.favorite.application.internal.outboundservices.acl.ExternalPublicationService;
-import com.upc.aventurape.platform.favorite.domain.model.aggregates.Favorite;
-import com.upc.aventurape.platform.favorite.domain.model.commands.CreateFavoritePublicationCommand;
-import com.upc.aventurape.platform.favorite.domain.model.commands.DeleteFavoriteCommand;
-import com.upc.aventurape.platform.favorite.domain.model.valueobjects.ProfileId;
-import com.upc.aventurape.platform.favorite.domain.model.valueobjects.PublicationId;
-import com.upc.aventurape.platform.favorite.domain.services.FavoritePublicationCommandService;
-import com.upc.aventurape.platform.favorite.infrastructure.persistence.jpa.repositories.FavoritePublicationRepository;
+import com.aventurape.favorites_service.domain.model.aggregates.Favorite;
+import com.aventurape.favorites_service.domain.model.commands.CreateFavoritePublicationCommand;
+import com.aventurape.favorites_service.domain.model.commands.DeleteFavoriteCommand;
+import com.aventurape.favorites_service.domain.model.valueobjects.ProfileId;
+import com.aventurape.favorites_service.domain.model.valueobjects.PublicationId;
+import com.aventurape.favorites_service.domain.services.FavoritePublicationCommandService;
+import com.aventurape.favorites_service.internal.outboundservices.acl.ExternalProfileService;
+import com.aventurape.favorites_service.internal.outboundservices.acl.ExternalPublicationService;
+import com.aventurape.favorites_service.repositories.FavoritePublicationRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
