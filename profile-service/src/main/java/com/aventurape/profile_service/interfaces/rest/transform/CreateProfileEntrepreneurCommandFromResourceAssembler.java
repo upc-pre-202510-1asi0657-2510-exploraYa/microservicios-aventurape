@@ -6,6 +6,7 @@ import com.aventurape.profile_service.interfaces.rest.resources.CreateProfileEnt
 public class CreateProfileEntrepreneurCommandFromResourceAssembler {
     public static CreateProfileEntrepreneurCommand toCommandFromResource(CreateProfileEntrepreneurResource resource) {
         return new CreateProfileEntrepreneurCommand(
+                resource.userId(),
                 resource.emailAddress(),
                 resource.addressStreet(),
                 resource.addressNumber(),

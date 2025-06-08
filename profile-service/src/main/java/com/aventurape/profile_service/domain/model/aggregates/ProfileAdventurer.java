@@ -26,17 +26,19 @@ public class ProfileAdventurer extends Profile {
         super();
     }
 
-    public ProfileAdventurer(String firstName, String lastName,
+    public ProfileAdventurer(UserId userId, String firstName, String lastName,
                              String email, String street, String number,
                              String city, String postalCode, String country,
                              String gender) {
         super(email, street, number, city, postalCode, country);
+        this.userId = userId;
         this.name = new PersonName(firstName, lastName);
         this.gender = new Gender(gender).convertToEnum();
     }
 
     public ProfileAdventurer(CreateProfileAdventurerCommand command) {
         super(command.email(), command.street(), command.number(), command.city(), command.postalCode(), command.country());
+        this.userId = new UserId(command.userId());
         this.name = new PersonName(command.firstName(), command.lastName());
         this.gender = new Gender(command.gender()).convertToEnum();
     }
@@ -45,7 +47,9 @@ public class ProfileAdventurer extends Profile {
         return gender.toString();
     }
 
-
+    public Long getUserId() {
+        return userId.userId();
+    }
     public String getFirstName() {
         return name.firstName();
     }

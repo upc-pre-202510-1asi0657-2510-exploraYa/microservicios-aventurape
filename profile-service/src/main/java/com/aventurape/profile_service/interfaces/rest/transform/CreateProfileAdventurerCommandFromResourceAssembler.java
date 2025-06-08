@@ -7,6 +7,7 @@ public class CreateProfileAdventurerCommandFromResourceAssembler{
     public static CreateProfileAdventurerCommand toCommandFromResource(
             CreateProfileAdventurerResource resource){
         return new CreateProfileAdventurerCommand(
+                resource.userId(),
                 resource.firstName(),
                 resource.lastName(),
                 resource.email(),

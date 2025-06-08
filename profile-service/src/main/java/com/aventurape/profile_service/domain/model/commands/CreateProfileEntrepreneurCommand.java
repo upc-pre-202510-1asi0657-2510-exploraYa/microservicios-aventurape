@@ -1,6 +1,7 @@
 package com.aventurape.profile_service.domain.model.commands;
 
 public record CreateProfileEntrepreneurCommand(
+        Long userId,
         String email,
         String street,
         String number,

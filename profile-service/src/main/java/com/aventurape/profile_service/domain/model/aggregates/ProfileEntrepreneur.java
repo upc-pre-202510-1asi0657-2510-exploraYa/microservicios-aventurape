@@ -27,7 +27,8 @@ public class ProfileEntrepreneur extends Profile {
         super();
     }
 
-    public ProfileEntrepreneur( String email, String street, String number, String city, String postalCode, String country, String name) {
+    public ProfileEntrepreneur(UserId userId, String email, String street, String number, String city, String postalCode, String country, String name) {
+        this.userId = userId;
         this.email = email;
         this.street = street;
         this.number = number;
@@ -39,6 +40,7 @@ public class ProfileEntrepreneur extends Profile {
 
     public ProfileEntrepreneur(CreateProfileEntrepreneurCommand command) {
         super(command.email(), command.street(), command.number(), command.city(), command.postalCode(), command.country());
+        this.userId = new UserId(command.userId());
         this.city = command.city();
         this.country = command.country();
         this.email = command.email();
@@ -51,5 +53,8 @@ public class ProfileEntrepreneur extends Profile {
 
     public String getName() {
         return name.nameEntrepreneurship();
+    }
+    public Long getUserId() {
+        return userId.userId();
     }
 }
