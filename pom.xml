@@ -24,6 +24,7 @@
     <module>profile-service</module>
     <module>favorites-service</module>
     <module>post-service</module>
+    <module>subscriptions-service</module>
   </modules>
 
   <properties>

@@ -17,11 +17,21 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
         </processorPath>
         <module name="favorites-service" />
         <module name="iam-service" />
-        <module name="post-service" />
         <module name="profile-service" />
+        <module name="post-service" />
+      </profile>
+      <profile name="Annotation profile for subscriptions-service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+        </processorPath>
+        <module name="subscriptions-service" />
       </profile>
     </annotationProcessing>
   </component>
@@ -34,6 +44,7 @@
       <module name="iam-service" options="-parameters" />
       <module name="post-service" options="-parameters" />
       <module name="profile-service" options="-parameters" />
+      <module name="subscriptions-service" options="-parameters" />
     </option>
   </component>
 </project>
