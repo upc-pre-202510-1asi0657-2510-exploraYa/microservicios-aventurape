@@ -71,7 +71,7 @@ public class PublicationsController {
     }
 
     @PostMapping("/create-publication")
-    @PreAuthorize("hasAuthority('ROLE_ENTREPRENEUR')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ENTREPRENEUR', 'ROLE_ADMIN')")
     public ResponseEntity<PublicationResource> createPublication(@RequestBody CreatePublicationResource resource) {
         logger.debug("Recibida solicitud para crear publicación: {}", resource);
         
@@ -80,15 +80,24 @@ public class PublicationsController {
         logger.debug("Autenticación actual: {}", authentication);
         logger.debug("Autoridades: {}", authentication != null ? authentication.getAuthorities() : "ninguna");
         
-        // Obtener el ID del usuario actual del token JWT
-        Long currentUserId = getCurrentUserId();
-        logger.debug("ID de usuario actual: {}", currentUserId);
-
-        // Asegurarse de que el ID del emprendedor en la publicación coincida con el ID del usuario autenticado
-        if (currentUserId == null || !currentUserId.equals(resource.entrepreneurId())) {
-            logger.debug("Acceso prohibido: el ID del usuario ({}) no coincide con el ID del emprendedor ({})", 
-                    currentUserId, resource.entrepreneurId());
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        // Verificar si el usuario es admin
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+        
+        // Si no es admin, verificar que el ID coincida con el emprendedor
+        if (!isAdmin) {
+            // Obtener el ID del usuario actual del token JWT
+            Long currentUserId = getCurrentUserId();
+            logger.debug("ID de usuario actual: {}", currentUserId);
+    
+            // Asegurarse de que el ID del emprendedor en la publicación coincida con el ID del usuario autenticado
+            if (currentUserId == null || !currentUserId.equals(resource.entrepreneurId())) {
+                logger.debug("Acceso prohibido: el ID del usuario ({}) no coincide con el ID del emprendedor ({})", 
+                        currentUserId, resource.entrepreneurId());
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        } else {
+            logger.debug("Usuario admin creando publicación para emprendedor ID: {}", resource.entrepreneurId());
         }
 
         var createPublicationCommand = CreatePublicationCommandFromResourceAssembler.toCommandFromResource(resource);
@@ -105,7 +114,7 @@ public class PublicationsController {
     }
 
     @PutMapping("/update/{publicationId}")
-    @PreAuthorize("hasAuthority('ROLE_ENTREPRENEUR')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ENTREPRENEUR', 'ROLE_ADMIN')")
     public ResponseEntity<PublicationResource> updatePublication(
             @PathVariable Long publicationId,
             @RequestBody UpdatePublicationResource resource) {
@@ -118,12 +127,22 @@ public class PublicationsController {
             return ResponseEntity.notFound().build();
         }
 
-        // Verificar que el usuario autenticado sea el dueño de la publicación
-        Long currentUserId = getCurrentUserId();
-        Long publicationOwnerId = publicationOptional.get().getEntrepreneurId();
+        // Verificar si el usuario es admin
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
 
-        if (!currentUserId.equals(publicationOwnerId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        // Si no es admin, verificar que sea el dueño de la publicación
+        if (!isAdmin) {
+            Long currentUserId = getCurrentUserId();
+            Long publicationOwnerId = publicationOptional.get().getEntrepreneurId();
+
+            if (!currentUserId.equals(publicationOwnerId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        } else {
+            logger.debug("Usuario admin actualizando publicación ID: {} del emprendedor ID: {}", 
+                    publicationId, publicationOptional.get().getEntrepreneurId());
         }
 
         var updatePublicationCommand = UpdatePublicationCommandFromResourceAssembler
@@ -164,6 +183,9 @@ public class PublicationsController {
             if (!currentUserId.equals(publicationOwnerId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
+        } else {
+            logger.debug("Usuario admin eliminando publicación ID: {} del emprendedor ID: {}", 
+                    publicationId, publicationOptional.get().getEntrepreneurId());
         }
 
         boolean success = publicationCommandService.handle(publicationId);

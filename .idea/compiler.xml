@@ -19,6 +19,9 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
         </processorPath>
         <module name="favorites-service" />
+        <module name="iam-service" />
+        <module name="post-service" />
+        <module name="profile-service" />
       </profile>
     </annotationProcessing>
   </component>
