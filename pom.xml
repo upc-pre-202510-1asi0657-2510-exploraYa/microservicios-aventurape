@@ -22,6 +22,7 @@
     <module>gateway-service</module>
     <module>iam-service</module>
     <module>profile-service</module>
+    <module>favorites-service</module>
     <module>post-service</module>
   </modules>
 

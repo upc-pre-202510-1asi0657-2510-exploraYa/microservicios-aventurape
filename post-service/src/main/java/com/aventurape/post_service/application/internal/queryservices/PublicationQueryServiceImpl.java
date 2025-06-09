@@ -7,6 +7,7 @@ import com.aventurape.post_service.domain.model.queries.GetPublicationsByEntrepr
 import com.aventurape.post_service.domain.services.PublicationQueryService;
 import com.aventurape.post_service.infrastructure.persistence.jpa.repositories.PublicationRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,16 +22,19 @@ public class PublicationQueryServiceImpl implements PublicationQueryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Publication> handle(GetAllPublicationsQuery query) {
         return publicationRepository.findAll();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Publication> handle(GetPublicationByIdQuery query) {
         return publicationRepository.findById(query.publicationId());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Publication> handle(GetPublicationsByEntrepreneurIdQuery query) {
         return publicationRepository.findByEntrepreneurId(query.entrepreneurId());
     }
