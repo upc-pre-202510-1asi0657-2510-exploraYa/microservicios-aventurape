@@ -1,10 +1,9 @@
 package com.aventurape.favorites_service.interfaces.rest.transform;
 
-
-import com.upc.aventurape.platform.favorite.domain.model.commands.CreateFavoritePublicationCommand;
-import com.upc.aventurape.platform.favorite.domain.model.valueobjects.ProfileId;
-import com.upc.aventurape.platform.favorite.domain.model.valueobjects.PublicationId;
-import com.upc.aventurape.platform.favorite.interfaces.rest.resources.CreateFavoritePublicationResource;
+import com.aventurape.favorites_service.domain.model.commands.CreateFavoritePublicationCommand;
+import com.aventurape.favorites_service.domain.model.valueobjects.ProfileId;
+import com.aventurape.favorites_service.domain.model.valueobjects.PublicationId;
+import com.aventurape.favorites_service.interfaces.rest.resources.CreateFavoritePublicationResource;
 
 public class CreateFavoritePublicationCommandFromResourceAssembler {
     public static CreateFavoritePublicationCommand toCommandFromResource(
