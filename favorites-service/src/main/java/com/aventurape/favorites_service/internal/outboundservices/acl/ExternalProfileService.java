@@ -6,8 +6,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-// Aca se encuentra el servicio externo que permite obtener el ID del perfil de un usuario
-// como podemos ver conectamos nuestro acl con el boundary de profiles
 @Service
 public class ExternalProfileService {
 
