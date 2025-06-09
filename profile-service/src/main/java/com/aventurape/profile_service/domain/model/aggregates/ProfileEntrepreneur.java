@@ -54,7 +54,7 @@ public class ProfileEntrepreneur extends Profile {
     public String getName() {
         return name.nameEntrepreneurship();
     }
-    public Long getUserId() {
-        return userId.userId();
+    public UserId getUserId() {
+        return userId;
     }
 }

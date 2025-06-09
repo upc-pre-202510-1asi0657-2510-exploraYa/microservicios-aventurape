@@ -4,9 +4,9 @@ import com.aventurape.profile_service.domain.model.commands.CreateProfileEntrepr
 import com.aventurape.profile_service.interfaces.rest.resources.CreateProfileEntrepreneurResource;
 
 public class CreateProfileEntrepreneurCommandFromResourceAssembler {
-    public static CreateProfileEntrepreneurCommand toCommandFromResource(CreateProfileEntrepreneurResource resource) {
+    public static CreateProfileEntrepreneurCommand toCommandFromResource(CreateProfileEntrepreneurResource resource, Long userId) {
         return new CreateProfileEntrepreneurCommand(
-                resource.userId(),
+                userId,
                 resource.emailAddress(),
                 resource.addressStreet(),
                 resource.addressNumber(),

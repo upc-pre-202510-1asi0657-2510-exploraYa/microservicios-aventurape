@@ -1,7 +1,6 @@
 package com.aventurape.profile_service.interfaces.rest.resources;
 
 public record CreateProfileAdventurerResource(
-        Long userId,
         String firstName,
         String lastName,
         String email,

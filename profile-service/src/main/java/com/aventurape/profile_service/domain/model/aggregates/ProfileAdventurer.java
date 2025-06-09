@@ -47,9 +47,10 @@ public class ProfileAdventurer extends Profile {
         return gender.toString();
     }
 
-    public Long getUserId() {
-        return userId.userId();
+    public UserId getUserId() {
+        return userId;
     }
+
     public String getFirstName() {
         return name.firstName();
     }

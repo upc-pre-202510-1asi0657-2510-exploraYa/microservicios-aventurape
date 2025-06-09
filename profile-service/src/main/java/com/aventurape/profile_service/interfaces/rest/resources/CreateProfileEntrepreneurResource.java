@@ -2,7 +2,6 @@ package com.aventurape.profile_service.interfaces.rest.resources;
 
 
 public record CreateProfileEntrepreneurResource(
-        Long userId,
         String nameEntrepreneurship,
         String addressCity,
         String addressCountry,

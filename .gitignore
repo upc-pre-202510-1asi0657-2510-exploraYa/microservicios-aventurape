@@ -99,4 +99,19 @@ coverage/
 ### Misc ###
 *.bak
 *.tmp
-*.temp 
+*.temp
+
+### Additional Common Directories ###
+bin/
+dist/
+tmp/
+temp/
+.gradle/
+build/
+out/
+.vercel/
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+.turbo/ 

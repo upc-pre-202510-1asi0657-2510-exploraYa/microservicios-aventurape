@@ -7,5 +7,4 @@ import java.util.Optional;
 
 public interface ProfileEntrepreneurCommandService {
     Optional<ProfileEntrepreneur> handle(CreateProfileEntrepreneurCommand command);
-    //Optional<ProfileEntrepreneur> handle(CreateProfileEntrepreneurCommand command);
 }

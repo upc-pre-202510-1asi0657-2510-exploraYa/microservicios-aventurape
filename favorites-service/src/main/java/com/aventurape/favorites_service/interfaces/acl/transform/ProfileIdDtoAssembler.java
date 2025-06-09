@@ -1,6 +1,6 @@
 package com.aventurape.favorites_service.interfaces.acl.transform;
 
-import com.upc.aventurape.platform.favorite.domain.model.valueobjects.ProfileId;
+import com.aventurape.favorites_service.domain.model.valueobjects.ProfileId;
 
 public class ProfileIdDtoAssembler {
     /**

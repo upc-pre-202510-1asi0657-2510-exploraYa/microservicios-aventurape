@@ -1,14 +1,12 @@
 package com.aventurape.profile_service.interfaces.rest;
 
-import com.aventurape.profile_service.domain.model.aggregates.ProfileAdventurer;
-import com.aventurape.profile_service.domain.model.aggregates.ProfileEntrepreneur;
-import com.aventurape.profile_service.domain.model.commands.CreateProfileAdventurerCommand;
-import com.aventurape.profile_service.domain.model.commands.CreateProfileEntrepreneurCommand;
 import com.aventurape.profile_service.domain.model.queries.*;
 import com.aventurape.profile_service.domain.services.ProfileAdventureCommandService;
 import com.aventurape.profile_service.domain.services.ProfileAdventureQueryService;
 import com.aventurape.profile_service.domain.services.ProfileEntrepreneurCommandService;
 import com.aventurape.profile_service.domain.services.ProfileEntrepreneurQueryService;
+import com.aventurape.profile_service.infrastructure.security.configuration.jwt.JwtTokenUtil;
+import com.aventurape.profile_service.infrastructure.security.configuration.jwt.JwtUserDetails;
 import com.aventurape.profile_service.interfaces.rest.resources.CreateProfileAdventurerResource;
 import com.aventurape.profile_service.interfaces.rest.resources.CreateProfileEntrepreneurResource;
 import com.aventurape.profile_service.interfaces.rest.resources.ProfileAdventurerResource;
@@ -18,6 +16,7 @@ import com.aventurape.profile_service.interfaces.rest.transform.CreateProfileEnt
 import com.aventurape.profile_service.interfaces.rest.transform.ProfileAdventurerResourceFromEntityAssembler;
 import com.aventurape.profile_service.interfaces.rest.transform.ProfileEntrepreneurResourceFromEntityAssembler;
 //import com.aventurape.iam_service.infraestructure.security.SecurityUtils;
+import com.thoughtworks.xstream.core.SecurityUtils;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -26,10 +25,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/api/v1/profiles", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -53,39 +54,87 @@ public class ProfilesController {
         this.profileEntrepreneurQueryService = profileEntrepreneurQueryService;
     }
 
-    @PostMapping("/adventurer")
-    public ResponseEntity<ProfileAdventurerResource> createProfileAdventurer(@RequestBody CreateProfileAdventurerResource createProfileAdventurerResource) {
-        try {
-            var createProfileCommand = CreateProfileAdventurerCommandFromResourceAssembler.toCommandFromResource(createProfileAdventurerResource);
-            var profileAdventurer = profileAdventureCommandService.handle(createProfileCommand);
-            var profileAdventurerResource = ProfileAdventurerResourceFromEntityAssembler.
-                    toResourceFromEntity(profileAdventurer);
-            return new ResponseEntity<>(profileAdventurerResource, HttpStatus.CREATED);
-        } catch (Exception e) {
-            logger.error("Error creating adventurer profile", e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    @PostMapping("/adventurer/create-adventurer")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADVENTUROUS', 'ROLE_ADMIN')")
+    public ResponseEntity<ProfileAdventurerResource> createProfileAdventurer(@RequestBody CreateProfileAdventurerResource resource) {
+        logger.debug("Recibida solicitud para crear publicación: {}", resource);
+        
+        // Obtener autenticación actual
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        logger.debug("Autenticación actual: {}", authentication);
+        logger.debug("Autoridades: {}", authentication != null ? authentication.getAuthorities() : "ninguna");
+
+        // Verificar si el usuario es admin
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+        logger.debug("¿Es admin? {}", isAdmin);
+
+        //verificar si el usuario es aventurero
+        boolean isAdventurer = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADVENTUROUS"));
+        logger.debug("¿Es aventurero? {}", isAdventurer);
+        if (!isAdmin && !isAdventurer) {
+            logger.error("Usuario no autorizado para crear perfil de aventurero");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+
+        Long userId = getCurrentUserId();
+        if (userId == null) {
+            logger.error("No se pudo obtener el ID de usuario actual");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        var createProfileCommand = CreateProfileAdventurerCommandFromResourceAssembler.toCommandFromResource(resource, userId);
+        var profileAdventurer = profileAdventureCommandService.handle(createProfileCommand);
+        if (profileAdventurer == null) {
+            logger.error("Error al crear el perfil de aventurero");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+        var profileAdventurerResource = ProfileAdventurerResourceFromEntityAssembler.toResourceFromEntity(profileAdventurer);
+        logger.info("Perfil de aventurero creado con éxito: {}", profileAdventurerResource);
+        return new ResponseEntity<>(profileAdventurerResource, HttpStatus.CREATED);
     }
 
-    @PostMapping("/entrepreneur")
-    public ResponseEntity<ProfileEntrepreneurResource> createProfileEntrepreneur(@RequestBody CreateProfileEntrepreneurResource createProfileEntrepreneurResource) {
-        try {
+    @PostMapping("/entrepreneur/create-entrepreneur")
+    @PreAuthorize("hasAnyAuthority('ROLE_ENTREPRENEUR', 'ROLE_ADMIN')")
+    public ResponseEntity<ProfileEntrepreneurResource> createProfileEntrepreneur(@RequestBody CreateProfileEntrepreneurResource resource) {
+        logger.debug("Recibida solicitud para crear perfil de emprendedor: {}", resource);
+        
+        // Obtener autenticación actual
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        logger.debug("Autenticación actual: {}", authentication);
+        logger.debug("Autoridades: {}", authentication != null ? authentication.getAuthorities() : "ninguna");
 
-            logger.info("Creating entrepreneur profile");
-            var createProfileCommand = CreateProfileEntrepreneurCommandFromResourceAssembler.toCommandFromResource(createProfileEntrepreneurResource);
-            var profileEntrepreneur = profileEntrepreneurCommandService.handle(createProfileCommand);
+        // Verificar si el usuario es admin
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+        logger.debug("¿Es admin? {}", isAdmin);
 
-            if (profileEntrepreneur.isEmpty()) {
-                logger.error("Failed to create entrepreneur profile");
-                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-            
-            var profileEntrepreneurResource = ProfileEntrepreneurResourceFromEntityAssembler.toResourceFromEntity(profileEntrepreneur.get());
-            return new ResponseEntity<>(profileEntrepreneurResource, HttpStatus.CREATED);
-        } catch (Exception e) {
-            logger.error("Error creating entrepreneur profile", e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        //verificar si el usuario es emprendedor
+        boolean isEntrepreneur = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ENTREPRENEUR"));
+        logger.debug("¿Es emprendedor? {}", isEntrepreneur);
+        if (!isAdmin && !isEntrepreneur) {
+            logger.error("Usuario no autorizado para crear perfil de emprendedor");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+
+        Long userId = getCurrentUserId();
+        if (userId == null) {
+            logger.error("No se pudo obtener el ID de usuario actual");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        var createProfileCommand = CreateProfileEntrepreneurCommandFromResourceAssembler.toCommandFromResource(resource, userId);
+        var profileEntrepreneur = profileEntrepreneurCommandService.handle(createProfileCommand);
+        if (profileEntrepreneur == null) {
+            logger.error("Error al crear el perfil de emprendedor");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+        var profileEntrepreneurResource = 
+        ProfileEntrepreneurResourceFromEntityAssembler.toResourceFromEntity(profileEntrepreneur.get());
+        logger.info("Perfil de emprendedor creado con éxito: {}", profileEntrepreneurResource);
+        return new ResponseEntity<>(profileEntrepreneurResource, HttpStatus.CREATED);
     }
 
     @GetMapping("/adventurer/{profileId}")
@@ -146,5 +195,13 @@ public class ProfilesController {
         }
         var profileEntrepreneurResource = ProfileEntrepreneurResourceFromEntityAssembler.toResourceFromEntity(profile.get());
         return new ResponseEntity<>(profileEntrepreneurResource, HttpStatus.OK);
+    }
+
+    private Long getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof JwtUserDetails) {
+            return ((JwtUserDetails) authentication.getPrincipal()).getId();
+        }
+        return null;
     }
 }

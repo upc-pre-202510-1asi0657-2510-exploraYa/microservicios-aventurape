@@ -5,9 +5,9 @@ import com.aventurape.profile_service.interfaces.rest.resources.CreateProfileAdv
 
 public class CreateProfileAdventurerCommandFromResourceAssembler{
     public static CreateProfileAdventurerCommand toCommandFromResource(
-            CreateProfileAdventurerResource resource){
+            CreateProfileAdventurerResource resource,Long userId){
         return new CreateProfileAdventurerCommand(
-                resource.userId(),
+                userId,
                 resource.firstName(),
                 resource.lastName(),
                 resource.email(),
