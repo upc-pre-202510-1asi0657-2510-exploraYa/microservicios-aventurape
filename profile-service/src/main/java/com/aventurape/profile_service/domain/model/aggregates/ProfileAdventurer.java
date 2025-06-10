@@ -9,7 +9,9 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import lombok.Getter;
 
+@Getter
 @Entity
 public class ProfileAdventurer extends Profile {
 

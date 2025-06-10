@@ -14,6 +14,9 @@ import lombok.Setter;
 @Entity
 @Table(name = "publications")
 public class Publication extends AuditableAbstractAggregateRoot<Publication> {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @NotNull
     @Column(name = "entrepreneur_id")
@@ -62,5 +65,25 @@ public class Publication extends AuditableAbstractAggregateRoot<Publication> {
 
     public Integer getCantPeople() {
         return adventure != null ? adventure.getCantPeople() : null;
+    }
+
+    public Adventure getAdventure() {
+        return adventure;
+    }
+
+    public Long getEntrepreneurId() {
+        return entrepreneurId;
+    }
+
+    public Long getId() {
+        return this.id;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public Integer getCost() {
+        return cost;
     }
 } 

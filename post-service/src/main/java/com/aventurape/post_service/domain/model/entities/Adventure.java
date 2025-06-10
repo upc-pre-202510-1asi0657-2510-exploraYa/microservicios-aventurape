@@ -48,4 +48,17 @@ public class Adventure extends AuditableAbstractEntity<Adventure> {
         this.cantPeople = cantPeople;
         return this;
     }
+
+    public String getNameActivity() {
+        return nameActivity;
+    }
+    public String getDescription() {
+        return description;
+    }
+    public Integer getTimeDuration() {
+        return timeDuration;
+    }
+    public Integer getCantPeople() {
+        return cantPeople;
+    }
 } 

@@ -5,11 +5,17 @@ import com.aventurape.profile_service.domain.model.valueobjects.StreetAddress;
 import com.aventurape.profile_service.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
+@Getter
 @Entity
 @Table(name = "profiles") // Explicitly specify table name
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Profile extends AuditableAbstractAggregateRoot<Profile> {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     // This class represents a profile in the system, which includes an email address and a street address.
     @Embedded
@@ -67,5 +73,24 @@ public class Profile extends AuditableAbstractAggregateRoot<Profile> {
 
     public String getStreetAddress() {
         return this.address.street();
+    }
+
+    public Long getId() {
+        return id;
+    }
+    public String getNumber() {
+        return this.address.number();
+    }
+    public String getCity() {
+        return this.address.city();
+    }
+    public String getPostalCode() {
+        return this.address.postalCode();
+    }
+    public String getCountry() {
+        return this.address.country();
+    }
+    public void setId(Long id) {
+        this.id = id;
     }
 }

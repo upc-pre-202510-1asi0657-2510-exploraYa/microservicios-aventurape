@@ -24,7 +24,7 @@ public class ExternalPublicationService {
 
     public Optional<PublicationIdDto> fetchPublicationById(Long publicationId) {
         try {
-            String url = publicationServiceUrl + "/api/publications/" + publicationId;
+            String url = publicationServiceUrl + "/api/v1/publications/" + publicationId;
             ResponseEntity<PublicationDto> response =
                     restTemplate.getForEntity(url, PublicationDto.class);
 
@@ -40,12 +40,13 @@ public class ExternalPublicationService {
 
     public boolean existsPublicationById(Long publicationId) {
         try {
-            String url = publicationServiceUrl + "/api/publications/" + publicationId + "/exists";
-            ResponseEntity<Boolean> response = restTemplate.getForEntity(url, Boolean.class);
-            return response.getStatusCode().is2xxSuccessful() &&
-                    Boolean.TRUE.equals(response.getBody());
+            // Corregir a la ruta correcta
+            String url = publicationServiceUrl + "/api/v1/publications/" + publicationId;
+            ResponseEntity<PublicationDto> response = restTemplate.getForEntity(url, PublicationDto.class);
+            // Si la respuesta es exitosa, la publicación existe
+            return response.getStatusCode().is2xxSuccessful() && response.getBody() != null;
         } catch (Exception e) {
-            // Log error
+            // La publicación no existe o hubo un error
             return false;
         }
     }
