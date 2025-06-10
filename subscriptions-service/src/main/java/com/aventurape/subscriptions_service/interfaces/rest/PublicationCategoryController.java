@@ -99,12 +99,7 @@ public class PublicationCategoryController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    /**
-     * Remove a category from a publication
-     * @param publicationId the publication ID
-     * @param categoryId the category ID
-     * @return no content response
-     */
+
     @DeleteMapping("/publication/{publicationId}/category/{categoryId}")
     public ResponseEntity<Void> removeCategoryFromPublication(
             @PathVariable Long publicationId,
