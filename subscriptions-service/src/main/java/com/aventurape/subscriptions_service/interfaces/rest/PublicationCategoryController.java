@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -33,11 +34,14 @@ public class PublicationCategoryController {
 
     private final CategoryCommandService categoryCommandService;
     private final CategoryQueryService categoryQueryService;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+
 
     public PublicationCategoryController(CategoryCommandService categoryCommandService,
-                                        CategoryQueryService categoryQueryService) {
+                                        CategoryQueryService categoryQueryService, KafkaTemplate<String, String> kafkaTemplate) {
         this.categoryCommandService = categoryCommandService;
         this.categoryQueryService = categoryQueryService;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     /**
@@ -80,12 +84,18 @@ public class PublicationCategoryController {
      * @param request the request with category ID
      * @return created response
      */
+
     @PostMapping("/publication/{publicationId}/assign")
     public ResponseEntity<Void> assignCategoryToPublication(
             @PathVariable Long publicationId,
             @RequestBody AssignCategoryRequest request) {
         var command = new AssignCategoryToPublicationCommand(publicationId, request.getCategoryId());
         categoryCommandService.handle(command);
+
+        // Enviar mensaje a Kafka
+        String notificationMessage = "Publicación " + publicationId + " asignada a la categoría " + request.getCategoryId();
+        kafkaTemplate.send("category-notifications", notificationMessage);
+
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

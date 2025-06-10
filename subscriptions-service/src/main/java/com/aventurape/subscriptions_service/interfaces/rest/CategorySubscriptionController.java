@@ -17,8 +17,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -53,32 +55,32 @@ public class CategorySubscriptionController {
     public ResponseEntity<List<CategoryResource>> getMySubscribedCategories() {
         Long userId = getCurrentUserId();
         logger.info("Obteniendo categorías suscritas para el usuario actual: {}", userId);
-        
+
         var query = new GetSubscribedCategoriesByUserIdQuery(userId);
         List<Category> categories = categoryQueryService.handle(query);
-        
+
         logger.info("Categorías encontradas para el usuario actual: {}", categories.size());
-        
+
         List<CategoryResource> resources = categories.stream()
                 .map(CategoryResourceFromEntityAssembler::toResourceFromEntity)
                 .collect(Collectors.toList());
-        
+
         return ResponseEntity.ok(resources);
     }
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<CategoryResource>> getUserSubscribedCategories(@PathVariable Long userId) {
         logger.info("Buscando categorías para el usuario con ID: {}", userId);
-        
+
         var query = new GetSubscribedCategoriesByUserIdQuery(userId);
         List<Category> categories = categoryQueryService.handle(query);
-        
+
         logger.info("Categorías encontradas para userId {}: {}", userId, categories.size());
-        
+
         if (categories.isEmpty()) {
             logger.warn("No se encontraron categorías para el usuario con ID: {}", userId);
         }
-        
+
         List<CategoryResource> resources = categories.stream()
                 .map(category -> {
                     CategoryResource resource = CategoryResourceFromEntityAssembler.toResourceFromEntity(category);
@@ -87,18 +89,18 @@ public class CategorySubscriptionController {
                     return resource;
                 })
                 .collect(Collectors.toList());
-        
+
         return ResponseEntity.ok(resources);
     }
 
     @PostMapping("/create")
     public ResponseEntity<String> createSubscription(@RequestBody CreateSubscriptionRequest request) {
-        logger.info("Creando suscripción para el usuario {} a la categoría {}", 
+        logger.info("Creando suscripción para el usuario {} a la categoría {}",
                 request.getUserId(), request.getCategoryId());
-        
+
         var command = new SubscribeToCategoryCommand(request.getUserId(), request.getCategoryId());
         CategorySubscription subscription = categoryCommandService.handle(command);
-        
+
         logger.info("Suscripción creada exitosamente con ID: {}", subscription.getId());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("Suscripción creada correctamente con ID: " + subscription.getId());
@@ -115,4 +117,5 @@ public class CategorySubscriptionController {
         logger.info("Usuario {} canceló suscripción exitosamente a la categoría {}", userId, categoryId);
         return ResponseEntity.noContent().build();
     }
+
 } 
