@@ -7,7 +7,7 @@ import com.aventurape.favorites_service.domain.model.valueobjects.ProfileId;
 import com.aventurape.favorites_service.domain.services.FavoritePublicationQueryService;
 import com.aventurape.favorites_service.internal.outboundservices.acl.ExternalProfileService;
 import com.aventurape.favorites_service.internal.outboundservices.acl.ExternalPublicationService;
-import com.aventurape.favorites_service.repositories.FavoritePublicationRepository;
+import com.aventurape.favorites_service.infrastructure.persistence.jpa.repositories.FavoritePublicationRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,19 +41,4 @@ public class FavoritePublicationQueryServiceImpl implements FavoritePublicationQ
         return favoriteRepository.findByProfileId(query.profileId());
     }
 
-    // Método adicional que muestra cómo utilizar los servicios externos
-    public List<Favorite> getValidFavorites(Long profileId, String profileType) {
-        // Verifica que el perfil existe
-        var profileDto = externalProfileService.fetchProfileIdByEmail(profileType, profileType);
-        if (profileDto.isEmpty()) {
-            return List.of(); // Retorna lista vacía si el perfil no existe
-        }
-
-        // Obtiene favoritos y filtra solo publicaciones válidas
-        List<Favorite> favorites = favoriteRepository.findByProfileId(new ProfileId(profileId));
-        return favorites.stream()
-                .filter(favorite -> externalPublicationService
-                        .existsPublicationById(favorite.getPublicationId().getId()))
-                .collect(Collectors.toList());
-    }
 }

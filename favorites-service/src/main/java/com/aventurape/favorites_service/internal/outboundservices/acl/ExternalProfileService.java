@@ -1,8 +1,10 @@
 package com.aventurape.favorites_service.internal.outboundservices.acl;
 
-
+import org.springframework.beans.factory.annotation.Value;
 import com.aventurape.favorites_service.interfaces.acl.transform.ProfileIdDto;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Optional;
 
@@ -10,33 +12,53 @@ import java.util.Optional;
 // como podemos ver conectamos nuestro acl con el boundary de profiles
 @Service
 public class ExternalProfileService {
+    private final RestTemplate restTemplate;
+    private final String profileServiceUrl;
 
-    private final ProfileAdventureCommandService profileAdventureCommandService;
-    private final ProfileEntrepreneurCommandService profileEntrepreneurCommandService;
-    private final ProfileAdventureQueryService profileAdventureQueryService;
-    private final ProfileEntrepreneurQueryService profileEntrepreneurQueryService;
-
-    public ExternalProfileService(ProfileAdventureCommandService profileAdventureCommandService,
-                                  ProfileEntrepreneurCommandService profileEntrepreneurCommandService,
-                                  ProfileAdventureQueryService profileAdventureQueryService,
-                                  ProfileEntrepreneurQueryService profileEntrepreneurQueryService) {
-        this.profileAdventureCommandService = profileAdventureCommandService;
-        this.profileEntrepreneurCommandService = profileEntrepreneurCommandService;
-        this.profileAdventureQueryService = profileAdventureQueryService;
-        this.profileEntrepreneurQueryService = profileEntrepreneurQueryService;
+    public ExternalProfileService(RestTemplate restTemplate,
+                                  @Value("${services.profile.url}") String profileServiceUrl) {
+        this.restTemplate = restTemplate;
+        this.profileServiceUrl = profileServiceUrl;
     }
-
-    public Optional<ProfileIdDto> fetchProfileIdByEmail(String email, String profileType) {
-        if ("adventurer".equalsIgnoreCase(profileType)) {
-            var getProfileByEmailQuery = new GetProfileAdventurerByEmailQuery(email);
-            return profileAdventureQueryService.handle(getProfileByEmailQuery)
-                    .map(profile -> new ProfileIdDto(profile.getId()));
-        } else if ("entrepreneur".equalsIgnoreCase(profileType)) {
-            var getProfileByEmailQuery = new GetProfileEntrepreneurByEmailQuery(email);
-            return profileEntrepreneurQueryService.handle(getProfileByEmailQuery)
-                    .map(profile -> new ProfileIdDto(profile.getId()));
+    public Optional<ProfileIdDto> fetchProfileIdByUserId(Long userId) {
+        try {
+            String url = profileServiceUrl + "/api/profiles/user/" + userId;
+            ProfileIdDto response = restTemplate.getForObject(url, ProfileIdDto.class);
+            return Optional.ofNullable(response);
+        } catch (Exception e) {
+            // Log error
+            return Optional.empty();
         }
-        throw new IllegalArgumentException("Invalid profile type: " + profileType);
     }
-
+    public boolean existsProfileById(Long profileId) {
+        try {
+            String url = profileServiceUrl + "/api/profiles/" + profileId + "/exists";
+            ResponseEntity<Boolean> response = restTemplate.getForEntity(url, Boolean.class);
+            return response.getStatusCode().is2xxSuccessful() &&
+                    Boolean.TRUE.equals(response.getBody());
+        } catch (Exception e) {
+            // Loguear error
+            return false;
+        }
+    }
+    public Optional<ProfileIdDto> fetchProfileById(Long profileId) {
+        try {
+            String url = profileServiceUrl + "/api/profiles/" + profileId;
+            ProfileIdDto response = restTemplate.getForObject(url, ProfileIdDto.class);
+            return Optional.ofNullable(response);
+        } catch (Exception e) {
+            // Log error
+            return Optional.empty();
+        }
+    }
+    public boolean existsProfileByUserId(Long userId) {
+        try {
+            String url = profileServiceUrl + "/api/profiles/user/" + userId + "/exists";
+            Boolean response = restTemplate.getForObject(url, Boolean.class);
+            return Boolean.TRUE.equals(response);
+        } catch (Exception e) {
+            // Log error
+            return false;
+        }
+    }
 }

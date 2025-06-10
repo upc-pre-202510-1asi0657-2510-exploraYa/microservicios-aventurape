@@ -1,9 +1,19 @@
 package com.aventurape.favorites_service.interfaces.rest;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.aventurape.favorites_service.infrastructure.security.jwt.JwtUserDetails;
+
+import com.aventurape.favorites_service.domain.model.commands.DeleteFavoriteCommand;
+import com.aventurape.favorites_service.domain.model.queries.GetAllFavoritePublicationsQuery;
+import com.aventurape.favorites_service.domain.model.queries.GetFavoritePublicationByProfileIdQuery;
+import com.aventurape.favorites_service.domain.model.valueobjects.ProfileId;
 import com.aventurape.favorites_service.domain.services.FavoritePublicationCommandService;
 import com.aventurape.favorites_service.domain.services.FavoritePublicationQueryService;
 import com.aventurape.favorites_service.interfaces.rest.resources.CreateFavoritePublicationResource;
 import com.aventurape.favorites_service.interfaces.rest.resources.FavoriteResource;
+import com.aventurape.favorites_service.interfaces.rest.transform.CreateFavoritePublicationCommandFromResourceAssembler;
+import com.aventurape.favorites_service.interfaces.rest.transform.FavoritePublicationResourceFromEntityAssembler;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,9 +37,21 @@ public class FavoritePublicationController {
         this.favoriteQueryService = favoriteQueryService;
     }
 
+    //Funcion para el getCurrentUserId
+    private Long getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof JwtUserDetails) {
+            return ((JwtUserDetails) authentication.getPrincipal()).getId();
+        }
+        return null;
+    }
+
     @PostMapping("/create-favorite-publication")
     public ResponseEntity<FavoriteResource> createFavoritePublication(@RequestBody CreateFavoritePublicationResource resource) {
-        Long profileId = SecurityUtils.getCurrentUserId();
+        Long profileId = getCurrentUserId();
+        if (profileId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         var createFavoritePublicationCommand = CreateFavoritePublicationCommandFromResourceAssembler.toCommandFromResource(resource, profileId);
         var favoritePublication = favoriteCommandService.handle(createFavoritePublicationCommand);
         var favoriteResource = FavoritePublicationResourceFromEntityAssembler.toResourceFromEntity(favoritePublication);

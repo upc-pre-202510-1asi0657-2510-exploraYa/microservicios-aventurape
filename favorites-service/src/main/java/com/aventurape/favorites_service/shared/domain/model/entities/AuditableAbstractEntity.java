@@ -1,8 +1,6 @@
 package com.aventurape.favorites_service.shared.domain.model.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.*;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -12,15 +10,20 @@ import java.util.Date;
 
 @EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
-public class AuditableModel {
+public class AuditableAbstractEntity<T> {
 
-  @Getter
-  @CreatedDate
-  @Column(nullable = false, updatable = false)
-  private Date createdAt;
+    @Id
+    @Getter
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Getter
-  @LastModifiedDate
-  @Column(nullable = false)
-  private Date updatedAt;
-}
+    @Getter
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    private Date createdAt;
+
+    @Getter
+    @LastModifiedDate
+    @Column(nullable = false)
+    private Date updatedAt;
+} 

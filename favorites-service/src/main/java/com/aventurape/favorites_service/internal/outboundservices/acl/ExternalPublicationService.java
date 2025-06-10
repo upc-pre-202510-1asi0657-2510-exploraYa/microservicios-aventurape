@@ -1,27 +1,52 @@
 package com.aventurape.favorites_service.internal.outboundservices.acl;
 
-
-import com.upc.aventurape.platform.favorite.interfaces.acl.transform.PublicationIdDto;
-import com.upc.aventurape.platform.publication.domain.services.PublicationQueryService;
+import com.aventurape.favorites_service.interfaces.acl.transform.PublicationDto;
+import com.aventurape.favorites_service.interfaces.acl.transform.PublicationIdDto;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Optional;
 
 @Service
 public class ExternalPublicationService {
 
-    private final PublicationQueryService publicationQueryService;
+    private final RestTemplate restTemplate;
+    private final String publicationServiceUrl;
 
-    public ExternalPublicationService(PublicationQueryService publicationQueryService) {
-        this.publicationQueryService = publicationQueryService;
+    public ExternalPublicationService(
+            RestTemplate restTemplate,
+            @Value("${services.publication.url}") String publicationServiceUrl) {
+        this.restTemplate = restTemplate;
+        this.publicationServiceUrl = publicationServiceUrl;
     }
 
     public Optional<PublicationIdDto> fetchPublicationById(Long publicationId) {
-        return publicationQueryService.findById(publicationId)
-                .map(publication -> new PublicationIdDto(publication.getId()));
+        try {
+            String url = publicationServiceUrl + "/api/publications/" + publicationId;
+            ResponseEntity<PublicationDto> response =
+                    restTemplate.getForEntity(url, PublicationDto.class);
+
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                return Optional.of(new PublicationIdDto(response.getBody().getPublicationId()));
+            }
+            return Optional.empty();
+        } catch (Exception e) {
+            // Log error
+            return Optional.empty();
+        }
     }
 
     public boolean existsPublicationById(Long publicationId) {
-        return publicationQueryService.findById(publicationId).isPresent();
+        try {
+            String url = publicationServiceUrl + "/api/publications/" + publicationId + "/exists";
+            ResponseEntity<Boolean> response = restTemplate.getForEntity(url, Boolean.class);
+            return response.getStatusCode().is2xxSuccessful() &&
+                    Boolean.TRUE.equals(response.getBody());
+        } catch (Exception e) {
+            // Log error
+            return false;
+        }
     }
 }

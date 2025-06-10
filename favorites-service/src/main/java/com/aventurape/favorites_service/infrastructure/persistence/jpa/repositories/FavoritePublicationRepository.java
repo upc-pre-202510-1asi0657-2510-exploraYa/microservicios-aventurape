@@ -1,4 +1,4 @@
-package com.aventurape.favorites_service.repositories;
+package com.aventurape.favorites_service.infrastructure.persistence.jpa.repositories;
 
 import com.aventurape.favorites_service.domain.model.aggregates.Favorite;
 import com.aventurape.favorites_service.domain.model.valueobjects.ProfileId;

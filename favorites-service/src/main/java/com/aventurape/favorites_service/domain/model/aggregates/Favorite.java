@@ -32,6 +32,24 @@ public class Favorite extends AuditableAbstractAggregateRoot<Favorite> {
         this.profileId = profileId;
         this.publicationId = publicationId;
     }
+    public Favorite(Long id, ProfileId profileId, PublicationId publicationId) {
+        this.id = id;
+        this.profileId = profileId;
+        this.publicationId = publicationId;
+    }
+
+    // Método para obtener el ID de la entidad
+    public Long getId() {
+        return id;
+    }
+    // Método para obtener el ID del perfil
+    public ProfileId getProfileId() {
+        return profileId;
+    }
+    // Método para obtener el ID de la publicación
+    public PublicationId getPublicationId() {
+        return publicationId;
+    }
 
 }
 

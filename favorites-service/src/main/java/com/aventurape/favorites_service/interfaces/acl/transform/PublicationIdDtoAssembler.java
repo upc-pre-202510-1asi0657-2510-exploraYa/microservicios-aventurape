@@ -1,5 +1,6 @@
 package com.aventurape.favorites_service.interfaces.acl.transform;
 
+
 import com.aventurape.favorites_service.domain.model.valueobjects.PublicationId;
 
 public class PublicationIdDtoAssembler {

@@ -18,4 +18,7 @@ public record PublicationId(Long publicationId) {
         return publicationId;
     }
 
+    public Long value() {
+        return publicationId;
+    }
 }

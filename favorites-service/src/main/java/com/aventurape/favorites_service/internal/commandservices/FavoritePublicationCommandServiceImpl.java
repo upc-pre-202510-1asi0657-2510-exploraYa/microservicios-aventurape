@@ -8,7 +8,7 @@ import com.aventurape.favorites_service.domain.model.valueobjects.PublicationId;
 import com.aventurape.favorites_service.domain.services.FavoritePublicationCommandService;
 import com.aventurape.favorites_service.internal.outboundservices.acl.ExternalProfileService;
 import com.aventurape.favorites_service.internal.outboundservices.acl.ExternalPublicationService;
-import com.aventurape.favorites_service.repositories.FavoritePublicationRepository;
+import com.aventurape.favorites_service.infrastructure.persistence.jpa.repositories.FavoritePublicationRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 

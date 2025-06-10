@@ -1,6 +1,5 @@
 package com.aventurape.favorites_service.shared.domain.model.aggregates;
 
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
@@ -14,18 +13,18 @@ import java.util.Date;
 @MappedSuperclass
 public class AuditableAbstractAggregateRoot<T extends AbstractAggregateRoot<T>> extends AbstractAggregateRoot<T> {
 
-  @Id
-  @Getter
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @Getter
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Getter
-  @CreatedDate
-  @Column(nullable = false, updatable = false)
-  private Date createdAt;
+    @Getter
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    private Date createdAt;
 
-  @Getter
-  @LastModifiedDate
-  @Column(nullable = false)
-  private Date updatedAt;
-}
+    @Getter
+    @LastModifiedDate
+    @Column(nullable = false)
+    private Date updatedAt;
+} 

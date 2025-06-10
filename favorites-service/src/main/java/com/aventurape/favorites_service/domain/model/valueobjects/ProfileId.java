@@ -17,4 +17,8 @@ public record ProfileId(Long profileId) {
     public Long getId() {
         return profileId;
     }
+
+    public Long value() {
+        return profileId;
+    }
 }
