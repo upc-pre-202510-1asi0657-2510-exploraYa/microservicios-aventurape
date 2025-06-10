@@ -20,9 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-/**
- * Implementation of CategoryCommandService
- */
 @Service
 public class CategoryCommandServiceImpl implements CategoryCommandService {
 
@@ -32,8 +29,8 @@ public class CategoryCommandServiceImpl implements CategoryCommandService {
     private final PublicationCategoryRepository publicationCategoryRepository;
 
     public CategoryCommandServiceImpl(CategoryRepository categoryRepository,
-                                     CategorySubscriptionRepository categorySubscriptionRepository,
-                                     PublicationCategoryRepository publicationCategoryRepository) {
+                                      CategorySubscriptionRepository categorySubscriptionRepository,
+                                      PublicationCategoryRepository publicationCategoryRepository) {
         this.categoryRepository = categoryRepository;
         this.categorySubscriptionRepository = categorySubscriptionRepository;
         this.publicationCategoryRepository = publicationCategoryRepository;
@@ -42,72 +39,72 @@ public class CategoryCommandServiceImpl implements CategoryCommandService {
     @Override
     @Transactional
     public CategorySubscription handle(SubscribeToCategoryCommand command) {
-        logger.info("Manejando comando de suscripción: userId={}, categoryId={}", 
+        logger.info("Manejando comando de suscripción: userId={}, categoryId={}",
                 command.userId(), command.categoryId());
-        
+
         // Find the category
         Category category = categoryRepository.findById(command.categoryId())
                 .orElseThrow(() -> {
                     logger.error("La categoría con ID {} no fue encontrada", command.categoryId());
                     return new IllegalArgumentException("Category not found");
                 });
-        
+
         logger.debug("Categoría encontrada: {}", category.getName());
-        
+
         // Crear value object UserId
         UserId userId = new UserId(command.userId());
         logger.debug("UserId creado: {}", userId.getUserId());
-        
+
         // Check if subscription already exists
-        Optional<CategorySubscription> existingSubscription = 
+        Optional<CategorySubscription> existingSubscription =
                 categorySubscriptionRepository.findByUserIdAndCategoryId(userId, command.categoryId());
-        
+
         if (existingSubscription.isPresent()) {
             logger.info("La suscripción ya existe para userId={}, categoryId={}",
                     command.userId(), command.categoryId());
             return existingSubscription.get();
         }
-        
+
         // Create new subscription
         CategorySubscription subscription = new CategorySubscription(userId, category);
         logger.debug("Nueva suscripción creada");
-        
+
         // Increment subscriber count
         category.incrementSubscribersCount();
         categoryRepository.save(category);
         logger.debug("Contador de suscriptores incrementado: {}", category.getSubscribersCount());
-        
+
         // Save and return subscription
         CategorySubscription savedSubscription = categorySubscriptionRepository.save(subscription);
         logger.info("Suscripción guardada correctamente con ID: {}", savedSubscription.getId());
-        
+
         return savedSubscription;
     }
 
     @Override
     @Transactional
     public void handle(UnsubscribeFromCategoryCommand command) {
-        logger.info("Manejando comando de cancelación de suscripción: userId={}, categoryId={}", 
+        logger.info("Manejando comando de cancelación de suscripción: userId={}, categoryId={}",
                 command.userId(), command.categoryId());
-        
+
         UserId userId = new UserId(command.userId());
-        
+
         // Find the subscription
-        Optional<CategorySubscription> subscription = 
+        Optional<CategorySubscription> subscription =
                 categorySubscriptionRepository.findByUserIdAndCategoryId(userId, command.categoryId());
-        
+
         if (subscription.isPresent()) {
             CategorySubscription sub = subscription.get();
-            
+
             // Decrement subscriber count
             Category category = sub.getCategory();
             category.decrementSubscribersCount();
             categoryRepository.save(category);
             logger.debug("Contador de suscriptores decrementado: {}", category.getSubscribersCount());
-            
+
             // Delete subscription
             categorySubscriptionRepository.delete(sub);
-            logger.info("Suscripción eliminada correctamente para userId={}, categoryId={}", 
+            logger.info("Suscripción eliminada correctamente para userId={}, categoryId={}",
                     command.userId(), command.categoryId());
         } else {
             logger.warn("No se encontró suscripción para cancelar: userId={}, categoryId={}",
@@ -118,36 +115,36 @@ public class CategoryCommandServiceImpl implements CategoryCommandService {
     @Override
     @Transactional
     public PublicationCategory handle(AssignCategoryToPublicationCommand command) {
-        logger.info("Asignando categoría a publicación: publicationId={}, categoryId={}", 
+        logger.info("Asignando categoría a publicación: publicationId={}, categoryId={}",
                 command.publicationId(), command.categoryId());
-        
+
         // Find the category
         Category category = categoryRepository.findById(command.categoryId())
                 .orElseThrow(() -> {
                     logger.error("La categoría con ID {} no fue encontrada", command.categoryId());
                     return new IllegalArgumentException("Category not found");
                 });
-        
+
         PublicationId publicationId = new PublicationId(command.publicationId());
-        
+
         // Create publication category relationship
         PublicationCategory publicationCategory = new PublicationCategory(publicationId, category);
-        
+
         // Save and return
         PublicationCategory saved = publicationCategoryRepository.save(publicationCategory);
         logger.info("Categoría asignada correctamente a publicación");
-        
+
         return saved;
     }
 
     @Override
     @Transactional
     public void handle(RemoveCategoryFromPublicationCommand command) {
-        logger.info("Removiendo categoría de publicación: publicationId={}, categoryId={}", 
+        logger.info("Removiendo categoría de publicación: publicationId={}, categoryId={}",
                 command.publicationId(), command.categoryId());
-        
+
         PublicationId publicationId = new PublicationId(command.publicationId());
-        
+
         // Find matching relationships
         publicationCategoryRepository.findByPublicationId(publicationId)
                 .stream()
@@ -156,7 +153,7 @@ public class CategoryCommandServiceImpl implements CategoryCommandService {
                     publicationCategoryRepository.delete(pc);
                     logger.debug("Relación publicación-categoría eliminada: publicationCategoryId={}", pc.getId());
                 });
-        
+
         logger.info("Proceso de eliminación completado");
     }
 } 

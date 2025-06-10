@@ -108,10 +108,10 @@ public class CategorySubscriptionController {
     public ResponseEntity<Void> unsubscribeFromCategory(@PathVariable Long categoryId) {
         Long userId = getCurrentUserId();
         logger.info("Usuario {} cancelando suscripción a la categoría {}", userId, categoryId);
-        
+
         var command = new UnsubscribeFromCategoryCommand(userId, categoryId);
         categoryCommandService.handle(command);
-        
+
         logger.info("Usuario {} canceló suscripción exitosamente a la categoría {}", userId, categoryId);
         return ResponseEntity.noContent().build();
     }

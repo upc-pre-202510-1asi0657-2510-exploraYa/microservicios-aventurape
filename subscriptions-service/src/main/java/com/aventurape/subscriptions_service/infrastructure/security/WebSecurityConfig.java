@@ -48,7 +48,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                             .requestMatchers("/api/v1/categories/**").permitAll()
                             .requestMatchers("/api/v1/category-subscriptions/**").authenticated()
-                            .requestMatchers("/api/v1/publication-categories/**").authenticated()
+                            .requestMatchers("/api/v1/publication-categories/**").permitAll()
                             .anyRequest().authenticated();
                     logger.debug("Configuración de reglas de autorización HTTP completada");
                 });

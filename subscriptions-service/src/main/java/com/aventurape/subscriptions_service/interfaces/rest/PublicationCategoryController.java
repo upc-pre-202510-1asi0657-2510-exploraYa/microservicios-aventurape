@@ -8,6 +8,7 @@ import com.aventurape.subscriptions_service.domain.model.queries.GetPublications
 import com.aventurape.subscriptions_service.domain.model.valueobjects.PublicationId;
 import com.aventurape.subscriptions_service.domain.services.CategoryCommandService;
 import com.aventurape.subscriptions_service.domain.services.CategoryQueryService;
+import com.aventurape.subscriptions_service.infrastructure.security.jwt.JwtUserDetails;
 import com.aventurape.subscriptions_service.interfaces.rest.resources.AssignCategoryRequest;
 import com.aventurape.subscriptions_service.interfaces.rest.resources.CategoryResource;
 import com.aventurape.subscriptions_service.interfaces.rest.transform.CategoryResourceFromEntityAssembler;
@@ -15,6 +16,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,11 +49,11 @@ public class PublicationCategoryController {
     public ResponseEntity<List<CategoryResource>> getCategoriesByPublicationId(@PathVariable Long publicationId) {
         var query = new GetCategoriesByPublicationIdQuery(publicationId);
         List<Category> categories = categoryQueryService.handle(query);
-        
+
         List<CategoryResource> resources = categories.stream()
                 .map(CategoryResourceFromEntityAssembler::toResourceFromEntity)
                 .collect(Collectors.toList());
-        
+
         return ResponseEntity.ok(resources);
     }
 
@@ -63,11 +66,11 @@ public class PublicationCategoryController {
     public ResponseEntity<List<Long>> getPublicationsByCategoryId(@PathVariable Long categoryId) {
         var query = new GetPublicationsByCategoryIdQuery(categoryId);
         List<PublicationId> publicationIds = categoryQueryService.handle(query);
-        
+
         List<Long> ids = publicationIds.stream()
                 .map(PublicationId::getPublicationId)
                 .collect(Collectors.toList());
-        
+
         return ResponseEntity.ok(ids);
     }
 
