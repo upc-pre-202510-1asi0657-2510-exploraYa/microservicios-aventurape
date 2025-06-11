@@ -8,6 +8,7 @@ import com.aventurape.subscriptions_service.domain.model.queries.GetPublications
 import com.aventurape.subscriptions_service.domain.model.valueobjects.PublicationId;
 import com.aventurape.subscriptions_service.domain.services.CategoryCommandService;
 import com.aventurape.subscriptions_service.domain.services.CategoryQueryService;
+import com.aventurape.subscriptions_service.infrastructure.messaging.RabbitMQNotificationProducer;
 import com.aventurape.subscriptions_service.infrastructure.security.jwt.JwtUserDetails;
 import com.aventurape.subscriptions_service.interfaces.rest.resources.AssignCategoryRequest;
 import com.aventurape.subscriptions_service.interfaces.rest.resources.CategoryResource;
@@ -16,7 +17,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -34,14 +34,14 @@ public class PublicationCategoryController {
 
     private final CategoryCommandService categoryCommandService;
     private final CategoryQueryService categoryQueryService;
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final RabbitMQNotificationProducer notificationProducer;
 
 
     public PublicationCategoryController(CategoryCommandService categoryCommandService,
-                                        CategoryQueryService categoryQueryService, KafkaTemplate<String, String> kafkaTemplate) {
+                                        CategoryQueryService categoryQueryService, RabbitMQNotificationProducer notificationProducer) {
         this.categoryCommandService = categoryCommandService;
         this.categoryQueryService = categoryQueryService;
-        this.kafkaTemplate = kafkaTemplate;
+        this.notificationProducer = notificationProducer;
     }
 
     /**
@@ -92,9 +92,9 @@ public class PublicationCategoryController {
         var command = new AssignCategoryToPublicationCommand(publicationId, request.getCategoryId());
         categoryCommandService.handle(command);
 
-        // Enviar mensaje a Kafka
+        // Enviar mensaje a RabbitMQ
         String notificationMessage = "Publicación " + publicationId + " asignada a la categoría " + request.getCategoryId();
-        kafkaTemplate.send("category-notifications", notificationMessage);
+        notificationProducer.sendNotification("category-notifications", notificationMessage);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
