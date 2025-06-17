@@ -25,6 +25,8 @@
     <module>favorites-service</module>
     <module>post-service</module>
     <module>subscriptions-service</module>
+    <module>comments-service</module>
+
   </modules>
 
   <properties>
