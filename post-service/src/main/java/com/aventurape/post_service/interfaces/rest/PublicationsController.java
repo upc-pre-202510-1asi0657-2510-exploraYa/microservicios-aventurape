@@ -196,6 +196,14 @@ public class PublicationsController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
+    @GetMapping("/exists/{publicationId}")
+    public ResponseEntity<Boolean> existsPublicationById(@PathVariable Long publicationId) {
+        logger.info("Verificando si existe la publicación con ID: {}", publicationId);
+        var getPublicationByIdQuery = new GetPublicationByIdQuery(publicationId);
+        var publicationOptional = publicationQueryService.handle(getPublicationByIdQuery);
+        return ResponseEntity.ok(publicationOptional.isPresent());
+    }
+
     private Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof JwtUserDetails) {
