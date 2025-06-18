@@ -8,4 +8,5 @@ public record CreatePublicationCommand(
         String description,
         Integer timeDuration,
         Integer cantPeople
+
 ) {} 

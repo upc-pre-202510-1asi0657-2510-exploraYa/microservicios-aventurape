@@ -10,6 +10,7 @@ import com.aventurape.comments_service.infrastructure.security.jwt.JwtUserDetail
 import com.aventurape.comments_service.interfaces.rest.clients.PostServiceClient;
 import com.aventurape.comments_service.interfaces.rest.resources.CommentResource;
 import com.aventurape.comments_service.interfaces.rest.resources.CreateCommentResource;
+import com.aventurape.comments_service.interfaces.rest.resources.PublicationRatingDto;
 import com.aventurape.comments_service.interfaces.rest.resources.UpdateCommentResource;
 import com.aventurape.comments_service.interfaces.rest.transform.CommentResourceFromEntityAssembler;
 import com.aventurape.comments_service.interfaces.rest.transform.CreateCommentCommandFromResourceAssembler;
@@ -143,25 +144,20 @@ public class CommentsController {
     public ResponseEntity<CommentResource> createComment(@RequestBody CreateCommentResource resource) {
         logger.debug("Recibida solicitud para crear comentario: {}", resource);
         
-        // Obtener autenticación actual
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        logger.debug("Autenticación actual: {}", authentication);
-        
         // Obtener el ID del usuario actual del token JWT
         Long currentUserId = getCurrentUserId();
         logger.debug("ID de usuario actual: {}", currentUserId);
 
-        // Asegurarse de que el ID del usuario en el comentario coincida con el ID del usuario autenticado
-        if (currentUserId == null || !currentUserId.equals(resource.userId())) {
-            logger.debug("Acceso prohibido: el ID del usuario ({}) no coincide con el ID del usuario autenticado ({})", 
-                    resource.userId(), currentUserId);
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        if (currentUserId == null) {
+            logger.debug("No se pudo obtener el ID de usuario del token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         // Verificar si la publicación existe
         try {
             var publicationExists = postServiceClient.existsPublicationById(resource.publicationId());
             if (publicationExists.getBody() == null || !publicationExists.getBody()) {
+                logger.debug("La publicación con ID {} no existe", resource.publicationId());
                 return ResponseEntity.badRequest().build();
             }
         } catch (Exception e) {
@@ -169,7 +165,7 @@ public class CommentsController {
             // Continuamos aunque no podamos verificar la publicación
         }
 
-        var createCommentCommand = CreateCommentCommandFromResourceAssembler.toCommandFromResource(resource);
+        var createCommentCommand = CreateCommentCommandFromResourceAssembler.toCommandFromResource(resource, currentUserId);
         var commentOptional = commentCommandService.handle(createCommentCommand);
 
         if (commentOptional.isEmpty()) {
@@ -243,6 +239,69 @@ public class CommentsController {
         }
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
+    /**
+     * Obtiene el rating de una publicación específica
+     * @param publicationId ID de la publicación
+     * @return Recurso con información del rating
+     */
+    @GetMapping("/ratings/publication/{publicationId}")
+    @Transactional
+    public ResponseEntity<PublicationRatingDto> getPublicationRating(@PathVariable Long publicationId) {
+        logger.info("Obteniendo rating para la publicación con ID: {}", publicationId);
+        
+        // Verificar si la publicación existe
+        try {
+            var publicationExists = postServiceClient.existsPublicationById(publicationId);
+            if (publicationExists.getBody() == null || !publicationExists.getBody()) {
+                logger.warn("La publicación con ID {} no existe", publicationId);
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            logger.warn("Error al verificar la publicación: {}", e.getMessage());
+            // Continuamos aunque no podamos verificar la publicación
+        }
+
+        // Obtener comentarios de la publicación
+        var getCommentsByPublicationIdQuery = new GetCommentsByPublicationIdQuery(publicationId);
+        var comments = commentQueryService.handle(getCommentsByPublicationIdQuery);
+        
+        if (comments.isEmpty()) {
+            logger.info("No se encontraron comentarios para la publicación con ID: {}", publicationId);
+            return ResponseEntity.ok(new PublicationRatingDto(publicationId, 0L, 0.0, 0, 0));
+        }
+        
+        long commentCount = comments.size();
+        
+        // Calcular rating promedio
+        double averageRating = comments.stream()
+                .mapToInt(comment -> comment.getRating())
+                .average()
+                .orElse(0.0);
+        
+        // Calcular rating mínimo
+        int minRating = comments.stream()
+                .mapToInt(comment -> comment.getRating())
+                .min()
+                .orElse(0);
+        
+        // Calcular rating máximo
+        int maxRating = comments.stream()
+                .mapToInt(comment -> comment.getRating())
+                .max()
+                .orElse(0);
+        
+        var ratingResource = new PublicationRatingDto(
+                publicationId,
+                commentCount,
+                averageRating,
+                minRating,
+                maxRating
+        );
+        
+        logger.info("Rating obtenido para la publicación con ID {}: {}", publicationId, averageRating);
+        return ResponseEntity.ok(ratingResource);
     }
 
     private Long getCurrentUserId() {

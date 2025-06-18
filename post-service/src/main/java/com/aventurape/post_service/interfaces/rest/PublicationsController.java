@@ -12,6 +12,9 @@ import com.aventurape.post_service.interfaces.rest.resources.UpdatePublicationRe
 import com.aventurape.post_service.interfaces.rest.transform.CreatePublicationCommandFromResourceAssembler;
 import com.aventurape.post_service.interfaces.rest.transform.PublicationResourceFromEntityAssembler;
 import com.aventurape.post_service.interfaces.rest.transform.UpdatePublicationCommandFromResourceAssembler;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -202,6 +205,57 @@ public class PublicationsController {
         var getPublicationByIdQuery = new GetPublicationByIdQuery(publicationId);
         var publicationOptional = publicationQueryService.handle(getPublicationByIdQuery);
         return ResponseEntity.ok(publicationOptional.isPresent());
+    }
+
+    /**
+     * Obtiene las publicaciones de un emprendedor ordenadas por rating
+     * @param entrepreneurId ID del emprendedor
+     * @return Lista de publicaciones ordenadas por rating
+     */
+    @GetMapping("/order-by-rating/{entrepreneurId}")
+    @Operation(summary = "Get publications by entrepreneur ID ordered by rating")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Publications found"),
+        @ApiResponse(responseCode = "404", description = "No publications found")
+    })
+    public ResponseEntity<List<PublicationResource>> getPublicationsByEntrepreneurIdOrderedByRating(
+            @PathVariable Long entrepreneurId) {
+        logger.info("Recibida solicitud para obtener publicaciones del emprendedor {} ordenadas por rating", entrepreneurId);
+        
+        // Utilizamos el mismo método para obtener las publicaciones del emprendedor
+        var getPublicationsByEntrepreneurIdQuery = new GetPublicationsByEntrepreneurIdQuery(entrepreneurId);
+        var publications = publicationQueryService.handle(getPublicationsByEntrepreneurIdQuery);
+        
+        if (publications.isEmpty()) {
+            logger.info("No se encontraron publicaciones para el emprendedor {}", entrepreneurId);
+            return ResponseEntity.notFound().build();
+        }
+        
+        // Convertimos las entidades a recursos
+        var publicationResources = publications.stream()
+                .map(PublicationResourceFromEntityAssembler::toResourceFromEntity)
+                .toList();
+        
+        logger.info("Se encontraron {} publicaciones para el emprendedor {}", publicationResources.size(), entrepreneurId);
+        return ResponseEntity.ok(publicationResources);
+    }
+
+    /**
+     * Obtiene el número total de publicaciones
+     * @return Número total de publicaciones
+     */
+    @GetMapping("/count")
+    @Operation(summary = "Get total number of publications")
+    public ResponseEntity<Long> countAllPublications() {
+        logger.info("Recibida solicitud para obtener el número total de publicaciones");
+        
+        var getAllPublicationsQuery = new GetAllPublicationsQuery();
+        var publications = publicationQueryService.handle(getAllPublicationsQuery);
+        
+        long count = publications.size();
+        logger.info("Total de publicaciones encontradas: {}", count);
+        
+        return ResponseEntity.ok(count);
     }
 
     private Long getCurrentUserId() {
