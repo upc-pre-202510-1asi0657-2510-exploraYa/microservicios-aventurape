@@ -8,7 +8,8 @@ public class UpdateCommentCommandFromResourceAssembler {
     public static UpdateCommentCommand toCommandFromResource(Long commentId, UpdateCommentResource resource) {
         return new UpdateCommentCommand(
                 commentId,
-                resource.content()
+                resource.content(),
+                resource.rating()
         );
     }
 } 

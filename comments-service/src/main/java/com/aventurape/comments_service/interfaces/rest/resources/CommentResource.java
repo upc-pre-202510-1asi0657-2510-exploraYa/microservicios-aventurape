@@ -7,6 +7,7 @@ public record CommentResource(
         Long publicationId,
         Long userId,
         String content,
+        Integer rating,
         Date createdAt,
         Date updatedAt
 ) {

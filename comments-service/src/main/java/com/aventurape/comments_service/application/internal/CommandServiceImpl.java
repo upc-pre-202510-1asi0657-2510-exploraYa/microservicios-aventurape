@@ -30,7 +30,7 @@ public class CommandServiceImpl implements CommentCommandService {
     public Optional<Comment> handle(CreateCommentCommand command) {
         logger.info("Creating comment for publication ID: {}, user ID: {}", command.publicationId(), command.userId());
         
-        var comment = new Comment(command.publicationId(), command.userId(), command.content());
+        var comment = new Comment(command.publicationId(), command.userId(), command.content(), command.rating());
         var savedComment = commentRepository.save(comment);
         
         // Publicar evento de comentario creado
@@ -51,7 +51,7 @@ public class CommandServiceImpl implements CommentCommandService {
         }
         
         var comment = commentOptional.get();
-        comment.updateContent(command.content());
+        comment.updateContentAndRating(command.content(), command.rating());
         var updatedComment = commentRepository.save(comment);
         
         // Publicar evento de comentario actualizado

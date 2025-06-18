@@ -5,11 +5,12 @@ import com.aventurape.comments_service.interfaces.rest.resources.CreateCommentRe
 
 public class CreateCommentCommandFromResourceAssembler {
     
-    public static CreateCommentCommand toCommandFromResource(CreateCommentResource resource) {
+    public static CreateCommentCommand toCommandFromResource(CreateCommentResource resource, Long userId) {
         return new CreateCommentCommand(
                 resource.publicationId(),
-                resource.userId(),
-                resource.content()
+                userId,
+                resource.content(),
+                resource.rating()
         );
     }
 } 

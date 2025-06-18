@@ -11,6 +11,7 @@ public class CommentResourceFromEntityAssembler {
                 entity.getPublicationId(),
                 entity.getUserId(),
                 entity.getContent(),
+                entity.getRating(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt()
         );
