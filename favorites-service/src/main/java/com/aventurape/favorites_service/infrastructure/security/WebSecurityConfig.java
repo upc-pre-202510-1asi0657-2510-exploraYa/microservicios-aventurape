@@ -40,13 +40,8 @@ public class WebSecurityConfig {
                     logger.debug("Configurando reglas de autorización HTTP");
                     auth
                             .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                            // Endopoints para favorites tenga el userid en el token JWT
                             .requestMatchers("/api/v1/favorites/**").permitAll()
-                            //Todos los endpoints de favorites
                             .requestMatchers("/api/v1/favorites/create-favorite-publication").authenticated()
-                            .requestMatchers("/api/v1/favorites/getFavoritePublicationByProfileId/{profileId}").permitAll()
-                            .requestMatchers("/api/v1/favorites/getAllFavoritesPublications").permitAll()
-                            .requestMatchers("/api/v1/favorites/delete-favorite-publication/{id}").authenticated()
                             .anyRequest().authenticated();
                     logger.debug("Configuración de reglas de autorización HTTP completada");
                 });
