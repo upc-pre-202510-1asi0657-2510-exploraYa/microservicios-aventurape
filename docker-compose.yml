@@ -1,0 +1,210 @@
+version: '3.8'
+
+services:
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    networks:
+      - microservices-net
+
+  # Config Service
+  config-service:
+    image: aksoonie/config-service:latest
+    container_name: config-service
+    ports:
+      - "8888:8888"
+    networks:
+      - microservices-net
+
+  # Eureka Service
+  eureka-service:
+    image: aksoonie/eureka-service:latest
+    container_name: eureka-service
+    ports:
+      - "8761:8761"
+    networks:
+      - microservices-net
+    depends_on:
+      - config-service
+
+  # IAM Service
+  iam-service:
+    image: aksoonie/iam-service:latest
+    container_name: iam-service
+    ports:
+      - "8081:8081"
+    environment:
+      DB_URL: jdbc:postgresql://host.docker.internal:5432/iam
+      DB_USER: postgres
+      DB_PASS: 73105334
+      EUREKA_URL: http://eureka-service:8761/eureka
+      CONFIG_SERVER_URL: http://config-service:8888
+    networks:
+      - microservices-net
+    depends_on:
+      - eureka-service
+      - config-service
+
+  # Post Service
+  post-service:
+    image: aksoonie/post-service:latest
+    container_name: post-service
+    ports:
+      - "8083:8083"
+    environment:
+      DB_URL: jdbc:postgresql://host.docker.internal:5432/post
+      DB_USER: postgres
+      DB_PASS: 73105334
+      EUREKA_URL: http://eureka-service:8761/eureka
+      CONFIG_SERVER_URL: http://config-service:8888
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: admin
+      RABBITMQ_PASSWORD: admin
+    networks:
+      - microservices-net
+    depends_on:
+      - eureka-service
+      - config-service
+      - rabbitmq
+
+  # Profile Service
+  profile-service:
+    image: aksoonie/profile-service:latest
+    container_name: profile-service
+    ports:
+      - "8082:8082"
+    environment:
+      DB_URL: jdbc:postgresql://host.docker.internal:5432/profile
+      DB_USER: postgres
+      DB_PASS: 73105334
+      EUREKA_URL: http://eureka-service:8761/eureka
+      CONFIG_SERVER_URL: http://config-service:8888
+    networks:
+      - microservices-net
+    depends_on:
+      - eureka-service
+      - config-service
+
+  # Stats Service
+  stats-service:
+    image: aksoonie/stats-service:latest
+    container_name: stats-service
+    ports:
+      - "8086:8086"
+    environment:
+      DB_URL: jdbc:postgresql://host.docker.internal:5432/stats
+      DB_USER: postgres
+      DB_PASS: 73105334
+      EUREKA_URL: http://eureka-service:8761/eureka
+      CONFIG_SERVER_URL: http://config-service:8888
+      JWT_ISSUER_URI: http://iam-service:8081/api/v1/authentication
+      JWT_JWK_SET_URI: http://iam-service:8081/.well-known/jwks.json
+      COMMENTS_SERVICE_URL: http://comments-service:8084
+      POST_SERVICE_URL: http://post-service:8083
+    networks:
+      - microservices-net
+    depends_on:
+      - eureka-service
+      - config-service
+      - iam-service
+
+  # Favorites Service
+  favorites-service:
+    image: aksoonie/favorites-service:latest
+    container_name: favorites-service
+    ports:
+      - "8085:8085"
+    environment:
+      DB_URL: jdbc:postgresql://host.docker.internal:5432/favorites
+      DB_USER: postgres
+      DB_PASS: 73105334
+      EUREKA_URL: http://eureka-service:8761/eureka
+      CONFIG_SERVER_URL: http://config-service:8888
+    networks:
+      - microservices-net
+    depends_on:
+      - eureka-service
+      - config-service
+
+  # Subscriptions Service
+  subscriptions-service:
+    image: aksoonie/subscriptions-service:latest
+    container_name: subscriptions-service
+    ports:
+      - "8087:8087"
+    environment:
+      DB_URL: jdbc:postgresql://host.docker.internal:5432/subscription
+      DB_USER: postgres
+      DB_PASS: 73105334
+      EUREKA_URL: http://eureka-service:8761/eureka
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: guest
+      RABBITMQ_PASSWORD: guest
+      SUBSCRIPTIONS_SERVICE_URL: http://subscriptions-service:8087
+    networks:
+      - microservices-net
+    depends_on:
+      - eureka-service
+      - rabbitmq
+
+  # Comments Service
+  comments-service:
+    image: aksoonie/comments-service:latest
+    container_name: comments-service
+    ports:
+      - "8084:8084"
+    environment:
+      DB_URL: jdbc:postgresql://host.docker.internal:5432/comments
+      DB_USER: postgres
+      DB_PASS: 73105334
+      EUREKA_URL: http://eureka-service:8761/eureka
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: guest
+      RABBITMQ_PASSWORD: guest
+    networks:
+      - microservices-net
+    depends_on:
+      - eureka-service
+      - rabbitmq
+
+  # Gateway Service
+  gateway-service:
+    image: aksoonie/gateway-service:latest
+    container_name: gateway-service
+    ports:
+      - "8080:8080"
+    environment:
+      CONFIG_SERVER_URL: http://config-service:8888
+      IAM_SERVICE_URL: http://iam-service:8081
+      PROFILE_SERVICE_URL: http://profile-service:8082
+      POST_SERVICE_URL: http://post-service:8083
+      COMMENTS_SERVICE_URL: http://comments-service:8084
+      FAVORITES_SERVICE_URL: http://favorites-service:8085
+      STATS_SERVICE_URL: http://stats-service:8086
+      CATEGORIES_SERVICE_URL: http://subscriptions-service:8087
+      ALLOWED_ORIGINS: http://localhost:5173
+    networks:
+      - microservices-net
+    depends_on:
+      - config-service
+      - iam-service
+      - profile-service
+      - post-service
+      - comments-service
+      - favorites-service
+      - stats-service
+      - subscriptions-service
+
+networks:
+  microservices-net:
+    driver: bridge
